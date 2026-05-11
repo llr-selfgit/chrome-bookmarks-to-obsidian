@@ -1,0 +1,15 @@
+{
+  "roots": {
+    "bookmark_bar": {"id": "9", "name": "书签栏", "type": "folder", "children": []},
+    "other": {
+      "id": "10",
+      "name": "其他书签",
+      "type": "folder",
+      "children": [
+        {"id": "14", "name": "知识库", "type": "folder", "children": []}
+      ]
+    },
+    "synced": {"id": "11", "name": "移动设备书签", "type": "folder", "children": []}
+  }
+}
+

@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "chrome-bookmarks-to-obsidian"
+version = "0.1.0"
+description = "Import a Chrome bookmark folder into a structured Obsidian web knowledge base."
+readme = "README.md"
+requires-python = ">=3.9"
+license = "MIT"
+authors = [
+  { name = "llr-selfgit" }
+]
+keywords = ["chrome", "bookmarks", "obsidian", "knowledge-base", "pkm"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Environment :: Console",
+  "Intended Audience :: End Users/Desktop",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.9",
+  "Topic :: Text Processing :: Markup :: Markdown",
+]
+dependencies = []
+
+[project.scripts]
+chrome-bookmarks-to-obsidian = "chrome_bookmarks_to_obsidian.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["chrome_bookmarks_to_obsidian*"]
+

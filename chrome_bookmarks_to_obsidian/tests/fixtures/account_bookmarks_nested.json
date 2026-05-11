@@ -1,0 +1,39 @@
+{
+  "roots": {
+    "other": {
+      "id": "10",
+      "name": "其他书签",
+      "type": "folder",
+      "children": [
+        {
+          "id": "14",
+          "name": "知识库",
+          "type": "folder",
+          "children": [
+            {
+              "id": "20",
+              "name": "Agent",
+              "type": "folder",
+              "children": [
+                {
+                  "id": "21",
+                  "name": "Codex Quickstart",
+                  "type": "url",
+                  "url": "https://developers.openai.com/codex/quickstart",
+                  "date_added": "13422900000000000"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "30",
+          "name": "Outside",
+          "type": "url",
+          "url": "https://example.com/outside"
+        }
+      ]
+    }
+  }
+}
+

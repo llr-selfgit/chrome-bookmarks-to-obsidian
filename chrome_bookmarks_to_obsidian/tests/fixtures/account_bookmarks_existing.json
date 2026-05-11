@@ -1,0 +1,55 @@
+{
+  "roots": {
+    "other": {
+      "id": "10",
+      "name": "其他书签",
+      "type": "folder",
+      "children": [
+        {
+          "id": "14",
+          "name": "知识库",
+          "type": "folder",
+          "children": [
+            {
+              "id": "101",
+              "name": "esengine/DeepSeek-Reasonix",
+              "type": "url",
+              "url": "https://github.com/esengine/DeepSeek-Reasonix"
+            },
+            {
+              "id": "102",
+              "name": "Claude Code 最佳实践指南 - 知乎",
+              "type": "url",
+              "url": "https://zhuanlan.zhihu.com/p/2009744974980331332"
+            },
+            {
+              "id": "103",
+              "name": "Self-Evolving Agentic AI Workspaces In Codex",
+              "type": "url",
+              "url": "https://www.reddit.com/r/codex/comments/1t6ap7j/how_to_build_selfevolving_agentic_ai_workspaces/"
+            },
+            {
+              "id": "104",
+              "name": "Codex + Obsidian increases your productivity",
+              "type": "url",
+              "url": "https://www.youtube.com/watch?v=AnyAbiXOf8g"
+            },
+            {
+              "id": "105",
+              "name": "learn-claude-code",
+              "type": "url",
+              "url": "https://github.com/shareAI-lab/learn-claude-code"
+            }
+          ]
+        },
+        {
+          "id": "200",
+          "name": "Outside",
+          "type": "url",
+          "url": "https://example.com/outside"
+        }
+      ]
+    }
+  }
+}
+

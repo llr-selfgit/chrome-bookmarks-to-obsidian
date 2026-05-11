@@ -1,0 +1,24 @@
+{
+  "roots": {
+    "other": {
+      "id": "10",
+      "name": "Other Bookmarks",
+      "type": "folder",
+      "children": [
+        {
+          "id": "14",
+          "name": "Reading List",
+          "type": "folder",
+          "children": [
+            {
+              "id": "21",
+              "name": "Example Article",
+              "type": "url",
+              "url": "https://example.com/article"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}
