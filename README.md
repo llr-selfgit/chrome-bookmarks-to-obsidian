@@ -2,21 +2,23 @@
 
 English | [中文](README.zh.md)
 
-Turn a dedicated Chrome bookmark folder into a small, structured Obsidian web knowledge base.
+Connect a Chrome bookmark folder to an Obsidian web knowledge base, without changing the habit of saving links in Chrome.
 
-## Why I Built This
+## Why This Exists
 
-Many of us save useful pages into Chrome bookmarks first: articles, GitHub repositories, Reddit discussions, tutorials, videos, product pages, and reference docs. Over time, the bookmark folder becomes a quiet backlog:
+This project started from a very ordinary habit: I save useful web pages in Chrome bookmarks.
 
-- the links are saved, but not summarized;
-- related sources are scattered;
-- Obsidian has no clean index for them;
-- AI coding agents do not know where to look;
-- when you finally need the material, you still have to organize it by hand.
+Chrome is the easiest capture point for me. It is always there, it works across devices, and saving a page takes almost no thought. What I do **not** naturally do is save every useful page into a local folder, create a Markdown note, classify it, and then keep an index updated in Obsidian.
 
-This tool is a small bridge between Chrome bookmarks and Obsidian. It turns one bookmark folder into a Markdown knowledge base with an index, category outlines, source notes, duplicate tracking, and a visible inbox for failed or blocked pages.
+So instead of asking myself to change that habit, I wanted the tool to adapt to it:
 
-It does **not** treat your bookmarks as a complete source of truth. It treats them as user-curated context: useful signals for future reading, research, and agent workflows.
+- Chrome bookmarks remain the lightweight place to save links.
+- Obsidian becomes the local place where those links are organized into Markdown.
+- Agents can later read the index, outlines, and source notes without scanning an entire vault.
+
+This tool is that bridge. It turns one Chrome bookmark folder into an Obsidian-friendly web knowledge base with a top-level index, category outlines, source notes, duplicate tracking, and a visible inbox for pages that need review.
+
+It does **not** treat bookmarks as a complete source of truth. It treats them as user-curated starting points: links you cared enough to save, ready to be organized, revisited, and checked later.
 
 ## What It Does
 
@@ -139,4 +141,3 @@ This is a small V1. Good next steps:
 - optional transcript extraction for videos;
 - better multilingual note templates;
 - scheduled imports.
-
