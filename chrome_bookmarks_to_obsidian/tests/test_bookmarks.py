@@ -27,8 +27,8 @@ class BookmarkTests(unittest.TestCase):
         bookmarks = extract_bookmarks_under_path(data, ["其他书签", "知识库"])
         urls = [bookmark.url for bookmark in bookmarks]
         self.assertEqual(len(bookmarks), 5)
-        self.assertIn("https://github.com/esengine/DeepSeek-Reasonix", urls)
-        self.assertIn("https://github.com/shareAI-lab/learn-claude-code", urls)
+        self.assertIn("https://github.com/example/agent-harness", urls)
+        self.assertIn("https://github.com/example/markdown-knowledge-base", urls)
         self.assertNotIn("https://example.com/outside", urls)
 
     def test_missing_folder_raises_clear_error(self):
@@ -48,4 +48,3 @@ class BookmarkTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-

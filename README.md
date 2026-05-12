@@ -117,6 +117,12 @@ Common options:
 - `--dry-run`: show what would be processed without writing notes.
 - `--limit`: process only the first N bookmarks, useful for smoke tests.
 
+If you do not want to pass `--bookmark-folder` every time, set it locally:
+
+```bash
+export CHROME_BOOKMARKS_TO_OBSIDIAN_FOLDER="Other Bookmarks / Reading List"
+```
+
 ## Output Structure
 
 ```text

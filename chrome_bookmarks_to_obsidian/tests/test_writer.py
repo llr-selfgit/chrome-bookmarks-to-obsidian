@@ -40,7 +40,7 @@ class WriterTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             writer = ObsidianWriter(root)
-            bookmark = Bookmark("Obsidian Video", "https://www.youtube.com/watch?v=AnyAbiXOf8g", ["其他书签", "知识库"])
+            bookmark = Bookmark("Obsidian Video", "https://www.youtube.com/watch?v=exampleVideo01", ["其他书签", "知识库"])
             fetch = FetchResult(
                 bookmark.url,
                 bookmark.title,

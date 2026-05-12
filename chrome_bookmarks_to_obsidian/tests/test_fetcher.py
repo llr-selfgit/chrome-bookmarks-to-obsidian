@@ -44,7 +44,7 @@ class FetcherTests(unittest.TestCase):
         self.assertEqual(detect_blocked_reason(text), "")
 
     def test_detects_video_sources_and_missing_transcript(self):
-        self.assertEqual(detect_media_type("https://www.youtube.com/watch?v=AnyAbiXOf8g"), "video")
+        self.assertEqual(detect_media_type("https://www.youtube.com/watch?v=exampleVideo01"), "video")
         self.assertEqual(infer_transcript_status("video", "Only title and channel metadata"), "missing")
 
     def test_fetch_result_can_request_browser_assisted(self):
@@ -62,8 +62,8 @@ class FetcherTests(unittest.TestCase):
         self.assertEqual(result.failure_reason, "empty_text")
 
     def test_github_repo_url_maps_to_readme_candidates(self):
-        candidates = github_readme_url_candidates("https://github.com/shareAI-lab/learn-claude-code")
-        self.assertIn("https://raw.githubusercontent.com/shareAI-lab/learn-claude-code/refs/heads/main/README.md", candidates)
+        candidates = github_readme_url_candidates("https://github.com/example/agent-playbook")
+        self.assertIn("https://raw.githubusercontent.com/example/agent-playbook/refs/heads/main/README.md", candidates)
 
 
 if __name__ == "__main__":

@@ -12,33 +12,33 @@
           "children": [
             {
               "id": "101",
-              "name": "esengine/DeepSeek-Reasonix",
+              "name": "Example Agent Harness",
               "type": "url",
-              "url": "https://github.com/esengine/DeepSeek-Reasonix"
+              "url": "https://github.com/example/agent-harness"
             },
             {
               "id": "102",
-              "name": "Claude Code 最佳实践指南 - 知乎",
+              "name": "Technical Writing Guide",
               "type": "url",
-              "url": "https://zhuanlan.zhihu.com/p/2009744974980331332"
+              "url": "https://example.com/articles/technical-writing-guide"
             },
             {
               "id": "103",
-              "name": "Self-Evolving Agentic AI Workspaces In Codex",
+              "name": "Agent Workspace Discussion",
               "type": "url",
-              "url": "https://www.reddit.com/r/codex/comments/1t6ap7j/how_to_build_selfevolving_agentic_ai_workspaces/"
+              "url": "https://example.com/discussions/agent-workspaces"
             },
             {
               "id": "104",
-              "name": "Codex + Obsidian increases your productivity",
+              "name": "Obsidian Workflow Video",
               "type": "url",
-              "url": "https://www.youtube.com/watch?v=AnyAbiXOf8g"
+              "url": "https://www.youtube.com/watch?v=exampleVideo01"
             },
             {
               "id": "105",
-              "name": "learn-claude-code",
+              "name": "Markdown Knowledge Base Example",
               "type": "url",
-              "url": "https://github.com/shareAI-lab/learn-claude-code"
+              "url": "https://github.com/example/markdown-knowledge-base"
             }
           ]
         },
@@ -52,4 +52,3 @@
     }
   }
 }
-

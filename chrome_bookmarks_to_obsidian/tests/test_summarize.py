@@ -28,32 +28,32 @@ class SummarizeTests(unittest.TestCase):
         text = (
             "Skip to content Navigation Menu Toggle navigation Sign in Appearance settings Platform AI CODE CREATION. "
             "Search code, repositories, users, issues, pull requests. "
-            "DeepSeek-Reasonix is a DeepSeek-native AI coding agent engineered around prefix-cache stability."
+            "Example Agent is a terminal coding assistant engineered around stable context reuse."
         )
-        summary = summarize_text("DeepSeek-Reasonix", text)
+        summary = summarize_text("Example Agent", text)
         joined = "\n".join(summary["candidate_excerpts"])
-        self.assertIn("DeepSeek-Reasonix", joined)
+        self.assertIn("Example Agent", joined)
         self.assertNotIn("Skip to content", joined)
 
     def test_summary_deduplicates_near_duplicate_points(self):
         text = (
-            "DeepSeek-native AI coding agent for your terminal. "
-            "- esengine/DeepSeek-Reasonix DeepSeek-native AI coding agent for your terminal. "
-            "Engineered around prefix-cache stability."
+            "Terminal coding assistant for local workflows. "
+            "- example/agent-playbook Terminal coding assistant for local workflows. "
+            "Engineered around stable context reuse."
         )
-        summary = summarize_text("DeepSeek-Reasonix", text)
+        summary = summarize_text("Example Agent", text)
         joined = "\n".join(summary["candidate_excerpts"])
-        self.assertEqual(joined.count("DeepSeek-native AI coding agent for your terminal"), 1)
+        self.assertEqual(joined.count("Terminal coding assistant for local workflows"), 1)
 
     def test_summary_skips_github_ui_boilerplate_points(self):
         text = (
-            "DeepSeek-native AI coding agent for your terminal. "
+            "Terminal coding assistant for local workflows. "
             "Search Clear Search syntax tips Provide feedback We read every piece of feedback. "
             "Include my email address so I can be contacted Cancel Submit feedback Saved searches. "
             "Reload to refresh your session. You signed out in another tab or window. "
-            "Engineered around prefix-cache stability."
+            "Engineered around stable context reuse."
         )
-        summary = summarize_text("DeepSeek-Reasonix", text)
+        summary = summarize_text("Example Agent", text)
         joined = "\n".join(summary["candidate_excerpts"])
         self.assertNotIn("Provide feedback", joined)
         self.assertNotIn("Include my email", joined)
@@ -71,11 +71,11 @@ class SummarizeTests(unittest.TestCase):
         self.assertIn("tmux 驾驭 Agent Teams", joined)
 
     def test_video_without_transcript_uses_title_but_marks_limit(self):
-        summary = summarize_text("Codex + Obsidian increases your productivity by 200%++ - YouTube", "", "video", "missing")
+        summary = summarize_text("Example Bookmark Workflow - YouTube", "", "video", "missing")
         self.assertEqual(summary["summary_basis"], "title")
         self.assertEqual(summary["curation_status"], "needs_agent")
         joined = "\n".join(summary["candidate_excerpts"] + summary["limitations"])
-        self.assertIn("Codex + Obsidian", joined)
+        self.assertIn("Example Bookmark Workflow", joined)
         self.assertIn("不能整理视频正文观点", joined)
 
     def test_boilerplate_only_becomes_metadata_summary(self):

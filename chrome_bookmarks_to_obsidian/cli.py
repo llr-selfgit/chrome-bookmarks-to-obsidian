@@ -6,10 +6,11 @@ from typing import Optional
 
 from chrome_bookmarks_to_obsidian.bookmarks import extract_bookmarks_under_path, load_bookmark_file
 from chrome_bookmarks_to_obsidian.config import (
+    BOOKMARK_FOLDER_ENV,
     DEFAULT_BOOKMARK_FOLDER,
-    DEFAULT_BOOKMARK_FOLDER_CANDIDATES,
     DEFAULT_BOOKMARKS_PATHS,
     DEFAULT_OUTPUT_DIR,
+    bookmark_folder_candidates,
 )
 from chrome_bookmarks_to_obsidian.fetcher import fetch_url
 from chrome_bookmarks_to_obsidian.registry import ImportRegistry
@@ -23,7 +24,7 @@ def _target_bookmark_path(bookmark_folder: Optional[str] = None) -> list:
 
 
 def _default_bookmark_path_candidates(bookmark_folder: Optional[str] = None) -> list:
-    folders = [bookmark_folder] if bookmark_folder else DEFAULT_BOOKMARK_FOLDER_CANDIDATES
+    folders = [bookmark_folder] if bookmark_folder else bookmark_folder_candidates()
     candidates = []
     seen = set()
     for folder in folders:
@@ -155,7 +156,11 @@ def run_import(
 def main() -> None:
     parser = argparse.ArgumentParser(description="Import a Chrome bookmark folder into an Obsidian web knowledge base.")
     parser.add_argument("--bookmark-file", type=Path, default=None)
-    parser.add_argument("--bookmark-folder", default=None, help='Folder path such as "Other Bookmarks / Reading List".')
+    parser.add_argument(
+        "--bookmark-folder",
+        default=None,
+        help=f'Folder path such as "Other Bookmarks / Reading List". Defaults can also come from {BOOKMARK_FOLDER_ENV}.',
+    )
     parser.add_argument("--output-root", type=Path, default=DEFAULT_OUTPUT_DIR)
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--limit", type=int, default=0)

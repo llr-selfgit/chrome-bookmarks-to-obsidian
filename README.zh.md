@@ -117,6 +117,12 @@ chrome-bookmarks-to-obsidian --help
 - `--dry-run`：只预览，不写入。
 - `--limit`：只处理前 N 条，用于烟测。
 
+如果不想每次写 `--bookmark-folder`，可以在本机设置：
+
+```bash
+export CHROME_BOOKMARKS_TO_OBSIDIAN_FOLDER="其他书签 / 知识库"
+```
+
 ## 输出结构
 
 ```text

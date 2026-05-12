@@ -1,6 +1,7 @@
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 from chrome_bookmarks_to_obsidian.cli import run_import
 
@@ -34,6 +35,19 @@ class CliTests(unittest.TestCase):
     def test_default_candidates_find_localized_bookmark_folder(self):
         fixture = Path(__file__).parent / "fixtures" / "account_bookmarks_existing.json"
         with tempfile.TemporaryDirectory() as tmp:
+            result = run_import(
+                bookmark_file=fixture,
+                output_root=Path(tmp),
+                dry_run=True,
+            )
+            self.assertEqual(result["bookmark_folder"], "其他书签 / 知识库")
+            self.assertEqual(result["total"], 5)
+
+    def test_env_bookmark_folder_is_default_candidate(self):
+        fixture = Path(__file__).parent / "fixtures" / "account_bookmarks_existing.json"
+        with tempfile.TemporaryDirectory() as tmp, patch.dict(
+            "os.environ", {"CHROME_BOOKMARKS_TO_OBSIDIAN_FOLDER": "其他书签 / 知识库"}
+        ):
             result = run_import(
                 bookmark_file=fixture,
                 output_root=Path(tmp),
