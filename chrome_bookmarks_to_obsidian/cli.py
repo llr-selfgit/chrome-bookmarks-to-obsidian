@@ -5,7 +5,12 @@ from pathlib import Path
 from typing import Optional
 
 from chrome_bookmarks_to_obsidian.bookmarks import extract_bookmarks_under_path, load_bookmark_file
-from chrome_bookmarks_to_obsidian.config import DEFAULT_BOOKMARK_FOLDER, DEFAULT_BOOKMARKS_PATHS, DEFAULT_OUTPUT_DIR
+from chrome_bookmarks_to_obsidian.config import (
+    DEFAULT_BOOKMARK_FOLDER,
+    DEFAULT_BOOKMARK_FOLDER_CANDIDATES,
+    DEFAULT_BOOKMARKS_PATHS,
+    DEFAULT_OUTPUT_DIR,
+)
 from chrome_bookmarks_to_obsidian.fetcher import fetch_url
 from chrome_bookmarks_to_obsidian.registry import ImportRegistry
 from chrome_bookmarks_to_obsidian.summarize import classify_source, summarize_text
@@ -15,6 +20,19 @@ from chrome_bookmarks_to_obsidian.writer import ObsidianWriter
 def _target_bookmark_path(bookmark_folder: Optional[str] = None) -> list:
     folder = bookmark_folder or DEFAULT_BOOKMARK_FOLDER
     return [part.strip() for part in folder.split("/") if part.strip()]
+
+
+def _default_bookmark_path_candidates(bookmark_folder: Optional[str] = None) -> list:
+    folders = [bookmark_folder] if bookmark_folder else DEFAULT_BOOKMARK_FOLDER_CANDIDATES
+    candidates = []
+    seen = set()
+    for folder in folders:
+        path = _target_bookmark_path(folder)
+        key = tuple(path)
+        if key not in seen:
+            candidates.append(path)
+            seen.add(key)
+    return candidates
 
 
 def _first_existing_bookmark_file() -> Path:
@@ -45,7 +63,19 @@ def run_import(
 ) -> dict:
     bookmark_file = bookmark_file or _first_existing_bookmark_file()
     data = load_bookmark_file(bookmark_file)
-    bookmarks = extract_bookmarks_under_path(data, _target_bookmark_path(bookmark_folder))
+    bookmarks = []
+    selected_folder_path = None
+    last_error = None
+    for folder_path in _default_bookmark_path_candidates(bookmark_folder):
+        try:
+            bookmarks = extract_bookmarks_under_path(data, folder_path)
+            selected_folder_path = folder_path
+            break
+        except ValueError as exc:
+            last_error = exc
+    if selected_folder_path is None:
+        tried = ", ".join(" / ".join(path) for path in _default_bookmark_path_candidates(bookmark_folder))
+        raise ValueError(f"Bookmark folder not found. Tried: {tried}") from last_error
     selected = bookmarks[:limit] if limit else bookmarks
 
     writer = ObsidianWriter(output_root)
@@ -54,7 +84,7 @@ def run_import(
         "bookmark_file": str(bookmark_file),
         "output_root": str(output_root),
         "dry_run": dry_run,
-        "bookmark_folder": bookmark_folder or DEFAULT_BOOKMARK_FOLDER,
+        "bookmark_folder": " / ".join(selected_folder_path),
         "total": len(bookmarks),
         "selected": len(selected),
         "imported": 0,
@@ -95,7 +125,7 @@ def run_import(
         category, confidence = classify_source(f"{bookmark.title}\n{fetch.text}")
         if confidence < 0.5:
             category = "未分类"
-        summary = summarize_text(fetch.title or bookmark.title, fetch.text)
+        summary = summarize_text(fetch.title or bookmark.title, fetch.text, fetch.media_type, fetch.transcript_status)
         content_hash = _hash_text(fetch.text or bookmark.url)
         note_path = writer.write_imported_source(bookmark, fetch, category, summary, content_hash)
         registry.mark_imported(

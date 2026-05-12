@@ -20,6 +20,7 @@ class SummarizeTests(unittest.TestCase):
         self.assertIn("one_line", summary)
         self.assertIn("key_points", summary)
         self.assertIn("limitations", summary)
+        self.assertEqual(summary["summary_basis"], "content")
         self.assertTrue(summary["key_points"])
 
     def test_summary_skips_common_navigation_boilerplate(self):
@@ -56,6 +57,32 @@ class SummarizeTests(unittest.TestCase):
         self.assertNotIn("Include my email", joined)
         self.assertNotIn("Reload to refresh", joined)
         self.assertNotIn("signed out in another tab", joined)
+
+    def test_summary_skips_csdn_metrics_and_article_directory(self):
+        text = (
+            "文章浏览阅读8.2k次，点赞30次，收藏31次。文章目录 1、前言 2、tmux 是什么。"
+            "本文是一篇从零到实战的完整指南，目标是让你读完就能用 tmux 驾驭 Agent Teams。"
+        )
+        summary = summarize_text("tmux完全指南", text)
+        joined = "\n".join(summary["key_points"])
+        self.assertNotIn("文章浏览阅读", joined)
+        self.assertIn("tmux 驾驭 Agent Teams", joined)
+
+    def test_video_without_transcript_uses_title_but_marks_limit(self):
+        summary = summarize_text("Codex + Obsidian increases your productivity by 200%++ - YouTube", "", "video", "missing")
+        self.assertEqual(summary["summary_basis"], "title")
+        self.assertIn("Codex + Obsidian", summary["one_line"])
+        joined = "\n".join(summary["key_points"] + summary["limitations"])
+        self.assertIn("只基于标题", joined)
+        self.assertIn("不能", joined)
+
+    def test_boilerplate_only_becomes_metadata_summary(self):
+        text = "Please update your browser Your browser isn’t supported anymore. About Copyright Contact us Terms Privacy Policy."
+        summary = summarize_text("Example video page", text)
+        self.assertEqual(summary["summary_basis"], "metadata")
+        joined = "\n".join(summary["key_points"] + summary["limitations"])
+        self.assertIn("未达到正文整理标准", joined)
+        self.assertNotIn("Please update your browser", joined)
 
 
 if __name__ == "__main__":

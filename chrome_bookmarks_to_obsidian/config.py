@@ -6,6 +6,11 @@ DEFAULT_BOOKMARKS_PATHS = [
 ]
 
 DEFAULT_BOOKMARK_FOLDER = "Other Bookmarks / Reading List"
+DEFAULT_BOOKMARK_FOLDER_CANDIDATES = [
+    DEFAULT_BOOKMARK_FOLDER,
+    "其他书签 / llr知识库",
+    "其他书签 / 知识库",
+]
 DEFAULT_VAULT_ROOT = Path.home() / "Documents/Obsidian Vault"
 DEFAULT_OUTPUT_DIR = DEFAULT_VAULT_ROOT / "80_web_knowledge_base"
 

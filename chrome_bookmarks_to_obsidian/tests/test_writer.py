@@ -15,6 +15,7 @@ class WriterTests(unittest.TestCase):
             bookmark = Bookmark("Codex Quickstart", "https://developers.openai.com/codex/quickstart", ["其他书签", "知识库"])
             fetch = FetchResult(bookmark.url, bookmark.title, "Agent memory context tools", "developers.openai.com", bookmark.url, "direct_http", "ok")
             summary = {
+                "summary_basis": "content",
                 "one_line": "Codex quickstart introduces setup.",
                 "key_points": ["Install Codex.", "Use it for agentic work."],
                 "use_cases": ["Agent workflow setup"],
@@ -24,7 +25,10 @@ class WriterTests(unittest.TestCase):
             self.assertTrue(note_path.exists())
             self.assertTrue((root / "知识库索引.md").exists())
             self.assertTrue((root / "AI Agent" / "大纲.md").exists())
-            self.assertIn("not_authoritative: true", note_path.read_text(encoding="utf-8"))
+            content = note_path.read_text(encoding="utf-8")
+            self.assertIn("coverage: partial", content)
+            self.assertIn("summary_basis: content", content)
+            self.assertIn("not_authoritative: true", content)
             writer.record_failure(bookmark, "fetch failed")
             self.assertIn("fetch failed", (root / "_inbox" / "待处理.md").read_text(encoding="utf-8"))
 
@@ -45,6 +49,7 @@ class WriterTests(unittest.TestCase):
                 transcript_status="missing",
             )
             summary = {
+                "summary_basis": "title",
                 "one_line": "Video metadata only.",
                 "key_points": ["Only title and metadata were available."],
                 "use_cases": ["Follow up with transcript extraction."],
@@ -52,9 +57,11 @@ class WriterTests(unittest.TestCase):
             }
             note_path = writer.write_imported_source(bookmark, fetch, "Obsidian", summary, "hash")
             content = note_path.read_text(encoding="utf-8")
+            self.assertIn("coverage: title_only", content)
             self.assertIn("media_type: video", content)
             self.assertIn("transcript_status: missing", content)
-            self.assertIn("未获取到视频转录文本", content)
+            self.assertIn("summary_basis: title", content)
+            self.assertIn("未提取到可靠正文", content)
 
     def test_rewriting_same_source_updates_outline_without_duplicate(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -63,12 +70,14 @@ class WriterTests(unittest.TestCase):
             bookmark = Bookmark("Codex Quickstart", "https://developers.openai.com/codex/quickstart", ["其他书签", "知识库"])
             fetch = FetchResult(bookmark.url, bookmark.title, "Agent memory context tools", "developers.openai.com", bookmark.url, "direct_http", "ok")
             first = {
+                "summary_basis": "content",
                 "one_line": "Old summary.",
                 "key_points": ["Old."],
                 "use_cases": ["Setup."],
                 "limitations": ["Recheck."],
             }
             second = {
+                "summary_basis": "content",
                 "one_line": "New summary.",
                 "key_points": ["New."],
                 "use_cases": ["Setup."],
@@ -80,6 +89,7 @@ class WriterTests(unittest.TestCase):
             self.assertEqual(outline.count(f"[[AI Agent/sources/{note_path.stem}|"), 1)
             self.assertIn("New summary.", outline)
             self.assertNotIn("Old summary.", outline)
+            self.assertLess(outline.index("[[AI Agent/sources/"), outline.index("## 共同结论"))
 
 
 if __name__ == "__main__":

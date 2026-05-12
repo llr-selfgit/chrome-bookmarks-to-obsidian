@@ -22,6 +22,14 @@ def _yaml_string(value: object) -> str:
     return json.dumps(str(value), ensure_ascii=False)
 
 
+def _coverage_for_summary_basis(summary_basis: str) -> str:
+    if summary_basis == "title":
+        return "title_only"
+    if summary_basis == "metadata":
+        return "metadata_only"
+    return "partial"
+
+
 class ObsidianWriter:
     def __init__(self, root: Path):
         self.root = root
@@ -52,17 +60,26 @@ class ObsidianWriter:
         timestamp = now_iso()
         media_type = fetch.media_type or "article"
         transcript_status = fetch.transcript_status or "not_applicable"
-        video_status = ""
-        if media_type == "video" and transcript_status != "available":
-            video_status = (
+        summary_basis = str(summary.get("summary_basis") or "content")
+        coverage = _coverage_for_summary_basis(summary_basis)
+        content_status = ""
+        if summary_basis != "content":
+            content_status = (
                 "\n## 内容状态\n\n"
-                "- 未获取到视频转录文本；当前摘要只基于可见页面文本或元数据。\n"
-                "- 后续如果需要准确理解视频内容，应补充 transcript 或人工整理。\n"
+                f"- summary_basis: {summary_basis}\n"
+                "- 未提取到可靠正文；当前条目不能当作正文级摘要使用。\n"
+                "- 后续如果需要准确理解内容，应补充 transcript、使用浏览器辅助流程或人工整理。\n"
+            )
+        elif media_type == "video" and transcript_status != "available":
+            content_status = (
+                "\n## 内容状态\n\n"
+                "- summary_basis: content\n"
+                "- 视频来源未标记 transcript 可用；如需引用视频观点，应补充 transcript 或人工复核。\n"
             )
         content = f"""---
 type: web-source
 source_type: chrome_bookmark
-coverage: partial
+coverage: {coverage}
 not_authoritative: true
 url: {_yaml_string(bookmark.url)}
 canonical_url: {_yaml_string(fetch.canonical_url or bookmark.url)}
@@ -73,6 +90,7 @@ category: {_yaml_string(category)}
 retrieval_method: {_yaml_string(fetch.retrieval_method)}
 media_type: {media_type}
 transcript_status: {transcript_status}
+summary_basis: {summary_basis}
 imported_at: {_yaml_string(timestamp)}
 last_checked_at: {_yaml_string(timestamp)}
 content_hash: {_yaml_string(content_hash)}
@@ -96,7 +114,7 @@ status: active
 ## 局限和需复核点
 
 {_md_list(summary["limitations"])}
-{video_status}
+{content_status}
 ## 来源链接
 
 - {bookmark.url}
@@ -121,8 +139,16 @@ status: active
         entry = f"- [[{relative.as_posix()}|{source_path.stem}]] - {summary['one_line']}"
         if outline_path.exists():
             content = outline_path.read_text(encoding="utf-8")
-            lines = [line for line in content.splitlines() if link_prefix not in line]
-            content = "\n".join(lines).rstrip() + f"\n{entry}\n"
+            lines = content.splitlines()
+            existing_entries = [
+                line
+                for line in lines
+                if line.startswith("- [[") and link_prefix not in line
+            ]
+            lines = [line for line in lines if not line.startswith("- [[")]
+            entries = existing_entries + [entry]
+            content = self._insert_outline_sources(lines, entries)
+            content = self._update_outline_timestamp(content)
         else:
             content = (
                 f"# {category} 大纲\n\n"
@@ -133,6 +159,38 @@ status: active
                 f"## 最后更新\n\n{now_iso()}\n"
             )
         outline_path.write_text(content, encoding="utf-8")
+
+    def _insert_outline_sources(self, lines: list, entries: list) -> str:
+        try:
+            heading_index = lines.index("## 主要来源")
+        except ValueError:
+            lines.extend(["", "## 主要来源", ""])
+            heading_index = len(lines) - 2
+
+        insert_at = heading_index + 1
+        while insert_at < len(lines) and not lines[insert_at].startswith("## "):
+            del lines[insert_at]
+
+        lines[insert_at:insert_at] = ["", *entries, ""]
+        return "\n".join(lines).rstrip() + "\n"
+
+    def _update_outline_timestamp(self, content: str) -> str:
+        lines = content.splitlines()
+        timestamp = now_iso()
+        try:
+            heading_index = lines.index("## 最后更新")
+        except ValueError:
+            return content.rstrip() + f"\n\n## 最后更新\n\n{timestamp}\n"
+
+        value_index = heading_index + 1
+        while value_index < len(lines) and not lines[value_index].strip():
+            value_index += 1
+        if value_index < len(lines) and not lines[value_index].startswith("## "):
+            lines[value_index] = timestamp
+        else:
+            lines.insert(heading_index + 1, "")
+            lines.insert(heading_index + 2, timestamp)
+        return "\n".join(lines).rstrip() + "\n"
 
     def record_failure(self, bookmark: Bookmark, reason: str) -> Path:
         self.ensure_base()

@@ -6,6 +6,7 @@ from chrome_bookmarks_to_obsidian.fetcher import (
     detect_media_type,
     extract_description_from_html,
     extract_text_from_html,
+    github_readme_url_candidates,
     infer_transcript_status,
 )
 
@@ -21,6 +22,17 @@ class FetcherTests(unittest.TestCase):
     def test_extracts_meta_description(self):
         html = '<html><head><meta property="og:description" content="DeepSeek-native AI coding agent."></head></html>'
         self.assertEqual(extract_description_from_html(html), "DeepSeek-native AI coding agent.")
+
+    def test_extract_text_prefers_semantic_container(self):
+        html = """
+        <html><body>
+          <nav>Search code, repositories, users, issues, pull requests.</nav>
+          <article><h1>Real Article</h1><p>This article explains tmux panes for agent teams with detach and reattach workflows.</p></article>
+        </body></html>
+        """
+        text = extract_text_from_html(html)
+        self.assertIn("Real Article", text)
+        self.assertNotIn("Search code", text)
 
     def test_detects_captcha_login_and_paywall(self):
         self.assertEqual(detect_blocked_reason("Please complete the CAPTCHA"), "captcha")
@@ -48,6 +60,10 @@ class FetcherTests(unittest.TestCase):
         )
         self.assertEqual(result.status, "needs_browser")
         self.assertEqual(result.failure_reason, "empty_text")
+
+    def test_github_repo_url_maps_to_readme_candidates(self):
+        candidates = github_readme_url_candidates("https://github.com/shareAI-lab/learn-claude-code")
+        self.assertIn("https://raw.githubusercontent.com/shareAI-lab/learn-claude-code/refs/heads/main/README.md", candidates)
 
 
 if __name__ == "__main__":

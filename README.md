@@ -25,15 +25,23 @@ It does **not** treat bookmarks as a complete source of truth. It treats them as
 - Reads Chrome bookmark JSON, preferring synced `AccountBookmarks` on macOS.
 - Extracts bookmarks under one folder path, such as `Other Bookmarks / Reading List`.
 - Fetches public web pages with direct HTTP.
+- Summarizes page content, not page chrome. It prefers article/main/README-like content and filters navigation, buttons, counters, login prompts, copyright blocks, and other UI boilerplate.
 - Writes concise Obsidian source notes, category outlines, and a top-level index.
 - Keeps `_registry.json` for duplicate detection and reruns.
 - Records failed, blocked, login-only, CAPTCHA, or browser-needed pages in `_inbox/待处理.md`.
-- Marks video links separately. If no transcript is available, it records `transcript_status: missing` instead of inventing a summary.
+- Marks video links separately. If no transcript is available, it uses the title only as a topic hint, records `transcript_status: missing`, and does not invent video-content claims.
+
+Each generated note includes `summary_basis`:
+
+- `content`: the summary came from extracted page content such as an article body or README.
+- `title`: no transcript/content was available, so the note only keeps a title-derived topic hint.
+- `metadata`: extraction found only page UI or metadata; the note is a review placeholder, not a content summary.
 
 ## Safety Boundaries
 
 - Stores summaries and key points, not full article archives.
 - Does not bypass login walls, paywalls, CAPTCHAs, or explicitly protected pages.
+- Does not summarize HTML elements, navigation text, browser warnings, GitHub UI, CSDN counters, or similar page furniture as source content.
 - Treats the generated knowledge base as partial and non-authoritative.
 - For time-sensitive or high-stakes topics, re-check the original source or use external research.
 

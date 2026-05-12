@@ -25,15 +25,23 @@ Chrome 收藏夹对我来说是最自然的捕捉入口：随手、低成本，�
 - 读取 Chrome bookmark JSON；macOS 上优先读取同步书签 `AccountBookmarks`。
 - 提取某个收藏目录下的链接，比如 `Other Bookmarks / Reading List`。
 - 用直接 HTTP 抓取公开网页。
+- 整理网页内容，而不是整理网页外壳。它会优先读取文章正文、main 区域或 README 这类内容，并过滤导航、按钮、统计数字、登录提示、版权栏等页面元素。
 - 写入简洁的 Obsidian 来源笔记、分类大纲和总索引。
 - 用 `_registry.json` 做去重和重复运行状态记录。
 - 把失败、受阻、需要登录、CAPTCHA 或需要浏览器辅助的页面写到 `_inbox/待处理.md`。
-- 单独标记视频链接；如果没有 transcript，会写 `transcript_status: missing`，不会根据标题编造视频内容总结。
+- 单独标记视频链接；如果没有 transcript，只会根据标题保留主题线索，写 `transcript_status: missing`，不会编造视频正文观点。
+
+每条生成笔记都会写入 `summary_basis`：
+
+- `content`：摘要来自抽取到的正文内容，比如文章正文或 README。
+- `title`：没有 transcript 或正文，只保留标题推断出的主题线索。
+- `metadata`：只抽到了页面 UI 或元数据；这只是待复核占位，不是正文摘要。
 
 ## 安全边界
 
 - 只保存摘要和关键观点，不保存完整文章归档。
 - 不绕过登录墙、付费墙、CAPTCHA 或明确受保护的页面。
+- 不把 HTML 元素、导航文字、浏览器提示、GitHub UI、CSDN 阅读量等页面外壳当成来源内容来总结。
 - 生成的知识库只是局部收藏来源，不是权威资料库。
 - 时效性或高风险问题仍需回到原始来源或外部资料核验。
 

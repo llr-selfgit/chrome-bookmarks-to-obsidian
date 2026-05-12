@@ -31,6 +31,17 @@ class CliTests(unittest.TestCase):
             self.assertEqual(result["total"], 1)
             self.assertEqual(result["items"][0]["url"], "https://example.com/article")
 
+    def test_default_candidates_find_localized_bookmark_folder(self):
+        fixture = Path(__file__).parent / "fixtures" / "account_bookmarks_existing.json"
+        with tempfile.TemporaryDirectory() as tmp:
+            result = run_import(
+                bookmark_file=fixture,
+                output_root=Path(tmp),
+                dry_run=True,
+            )
+            self.assertEqual(result["bookmark_folder"], "其他书签 / 知识库")
+            self.assertEqual(result["total"], 5)
+
 
 if __name__ == "__main__":
     unittest.main()
