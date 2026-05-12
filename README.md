@@ -25,23 +25,26 @@ It does **not** treat bookmarks as a complete source of truth. It treats them as
 - Reads Chrome bookmark JSON, preferring synced `AccountBookmarks` on macOS.
 - Extracts bookmarks under one folder path, such as `Other Bookmarks / Reading List`.
 - Fetches public web pages with direct HTTP.
-- Summarizes page content, not page chrome. It prefers article/main/README-like content and filters navigation, buttons, counters, login prompts, copyright blocks, and other UI boilerplate.
-- Writes concise Obsidian source notes, category outlines, and a top-level index.
+- Extracts page content, not page chrome. It prefers article/main/README-like content and filters navigation, buttons, counters, login prompts, copyright blocks, and other UI boilerplate.
+- Writes Obsidian source candidate notes, category outlines, and a top-level index.
 - Keeps `_registry.json` for duplicate detection and reruns.
 - Records failed, blocked, login-only, CAPTCHA, or browser-needed pages in `_inbox/待处理.md`.
 - Marks video links separately. If no transcript is available, it uses the title only as a topic hint, records `transcript_status: missing`, and does not invent video-content claims.
 
+Script-generated notes are not final knowledge notes. They are marked with `curation_status: needs_agent` so an agent or human can read the extracted material and then write the actual one-line summary, key points, use cases, and limitations.
+
 Each generated note includes `summary_basis`:
 
-- `content`: the summary came from extracted page content such as an article body or README.
+- `content`: candidate excerpts came from extracted page content such as an article body or README.
 - `title`: no transcript/content was available, so the note only keeps a title-derived topic hint.
 - `metadata`: extraction found only page UI or metadata; the note is a review placeholder, not a content summary.
 
 ## Safety Boundaries
 
-- Stores summaries and key points, not full article archives.
+- Stores extracted candidates and curation status, not full article archives.
 - Does not bypass login walls, paywalls, CAPTCHAs, or explicitly protected pages.
 - Does not summarize HTML elements, navigation text, browser warnings, GitHub UI, CSDN counters, or similar page furniture as source content.
+- Does not hard-code final content organization. The final summary, key points, use cases, and limitations should be written by an agent or human after reading the source material.
 - Treats the generated knowledge base as partial and non-authoritative.
 - For time-sensitive or high-stakes topics, re-check the original source or use external research.
 

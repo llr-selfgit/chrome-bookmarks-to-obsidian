@@ -111,44 +111,39 @@ def summarize_text(
     if media_type == "video" and transcript_status != "available":
         return {
             "summary_basis": "title",
-            "one_line": f"视频标题指向“{clean_title}”；当前没有 transcript，只能据标题判断主题，不能当作已理解视频正文。",
-            "key_points": [
-                f"标题显示该视频大概率讨论 {clean_title} 这一主题。",
-                "未获取到可靠 transcript，因此不能提炼视频里的论证、步骤、案例或具体结论。",
-                "适合作为待补 transcript 或后续浏览器辅助整理的线索。",
+            "curation_status": "needs_agent",
+            "one_line": f"待 Agent 整理：{clean_title}",
+            "candidate_excerpts": [
+                f"标题：{clean_title}",
+                "未获取到可靠 transcript；这只能作为标题级线索。",
             ],
-            "use_cases": ["作为用户收藏来源的主题线索", "后续补 transcript 后再整理为正式内容"],
             "limitations": [
-                "该条目只基于标题判断，不代表视频正文内容。",
-                "不能引用视频中的具体观点，除非后续补充 transcript 或人工观看整理。",
+                "当前没有可靠 transcript，不能整理视频正文观点。",
+                "需要补充 transcript 或人工观看后，再由 Agent 生成摘要、关键观点、用途和局限。",
             ],
         }
     sentences = _sentences(text)
     if not sentences:
         return {
             "summary_basis": "metadata",
-            "one_line": f"未提取到可靠正文；当前只保留标题“{clean_title}”作为线索。",
-            "key_points": [
-                f"标题显示该来源可能与“{clean_title}”相关。",
+            "curation_status": "needs_agent",
+            "one_line": f"待 Agent 整理：{clean_title}",
+            "candidate_excerpts": [
+                f"标题：{clean_title}",
                 "自动抽取结果主要是导航、按钮、统计、登录提示或其他页面元素，未达到正文整理标准。",
-                "需要浏览器辅助、transcript 或人工整理后，才能生成正文级摘要。",
             ],
-            "use_cases": ["作为待复核来源线索", "后续补正文后再整理为正式内容"],
             "limitations": [
-                "该条目没有可靠正文摘要，不能引用为来源观点。",
-                "需要回到原网页或使用浏览器辅助流程重新获取正文。",
+                "当前没有可靠正文，不能生成来源观点。",
+                "需要回到原网页或使用浏览器辅助流程重新获取正文，再由 Agent 整理。",
             ],
         }
-    key_points = sentences[:5]
-    one_line = key_points[0][:180]
-    limitations = [
-        "该来源来自用户收藏，覆盖范围是局部的，不代表该主题的完整资料。",
-        "如用于时效性判断，应重新联网核验。",
-    ]
     return {
         "summary_basis": "content",
-        "one_line": one_line,
-        "key_points": key_points,
-        "use_cases": ["作为用户收藏来源的背景资料", "用于后续研究时的起点和线索"],
-        "limitations": limitations,
+        "curation_status": "needs_agent",
+        "one_line": f"待 Agent 整理：{clean_title}",
+        "candidate_excerpts": sentences[:8],
+        "limitations": [
+            "脚本只负责抽取和去噪，不负责最终语义整理。",
+            "需要 Agent 阅读候选正文和原链接后，再生成摘要、关键观点、用途和局限。",
+        ],
     }

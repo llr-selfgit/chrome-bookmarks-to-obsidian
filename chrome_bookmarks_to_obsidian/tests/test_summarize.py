@@ -18,10 +18,11 @@ class SummarizeTests(unittest.TestCase):
         text = "Agent memory helps systems retrieve prior context. It should not be treated as complete truth. Sources need timestamps."
         summary = summarize_text("Memory article", text)
         self.assertIn("one_line", summary)
-        self.assertIn("key_points", summary)
+        self.assertIn("candidate_excerpts", summary)
         self.assertIn("limitations", summary)
         self.assertEqual(summary["summary_basis"], "content")
-        self.assertTrue(summary["key_points"])
+        self.assertEqual(summary["curation_status"], "needs_agent")
+        self.assertTrue(summary["candidate_excerpts"])
 
     def test_summary_skips_common_navigation_boilerplate(self):
         text = (
@@ -30,8 +31,9 @@ class SummarizeTests(unittest.TestCase):
             "DeepSeek-Reasonix is a DeepSeek-native AI coding agent engineered around prefix-cache stability."
         )
         summary = summarize_text("DeepSeek-Reasonix", text)
-        self.assertIn("DeepSeek-Reasonix", summary["one_line"])
-        self.assertNotIn("Skip to content", summary["one_line"])
+        joined = "\n".join(summary["candidate_excerpts"])
+        self.assertIn("DeepSeek-Reasonix", joined)
+        self.assertNotIn("Skip to content", joined)
 
     def test_summary_deduplicates_near_duplicate_points(self):
         text = (
@@ -40,7 +42,7 @@ class SummarizeTests(unittest.TestCase):
             "Engineered around prefix-cache stability."
         )
         summary = summarize_text("DeepSeek-Reasonix", text)
-        joined = "\n".join(summary["key_points"])
+        joined = "\n".join(summary["candidate_excerpts"])
         self.assertEqual(joined.count("DeepSeek-native AI coding agent for your terminal"), 1)
 
     def test_summary_skips_github_ui_boilerplate_points(self):
@@ -52,7 +54,7 @@ class SummarizeTests(unittest.TestCase):
             "Engineered around prefix-cache stability."
         )
         summary = summarize_text("DeepSeek-Reasonix", text)
-        joined = "\n".join(summary["key_points"])
+        joined = "\n".join(summary["candidate_excerpts"])
         self.assertNotIn("Provide feedback", joined)
         self.assertNotIn("Include my email", joined)
         self.assertNotIn("Reload to refresh", joined)
@@ -64,23 +66,23 @@ class SummarizeTests(unittest.TestCase):
             "本文是一篇从零到实战的完整指南，目标是让你读完就能用 tmux 驾驭 Agent Teams。"
         )
         summary = summarize_text("tmux完全指南", text)
-        joined = "\n".join(summary["key_points"])
+        joined = "\n".join(summary["candidate_excerpts"])
         self.assertNotIn("文章浏览阅读", joined)
         self.assertIn("tmux 驾驭 Agent Teams", joined)
 
     def test_video_without_transcript_uses_title_but_marks_limit(self):
         summary = summarize_text("Codex + Obsidian increases your productivity by 200%++ - YouTube", "", "video", "missing")
         self.assertEqual(summary["summary_basis"], "title")
-        self.assertIn("Codex + Obsidian", summary["one_line"])
-        joined = "\n".join(summary["key_points"] + summary["limitations"])
-        self.assertIn("只基于标题", joined)
-        self.assertIn("不能", joined)
+        self.assertEqual(summary["curation_status"], "needs_agent")
+        joined = "\n".join(summary["candidate_excerpts"] + summary["limitations"])
+        self.assertIn("Codex + Obsidian", joined)
+        self.assertIn("不能整理视频正文观点", joined)
 
     def test_boilerplate_only_becomes_metadata_summary(self):
         text = "Please update your browser Your browser isn’t supported anymore. About Copyright Contact us Terms Privacy Policy."
         summary = summarize_text("Example video page", text)
         self.assertEqual(summary["summary_basis"], "metadata")
-        joined = "\n".join(summary["key_points"] + summary["limitations"])
+        joined = "\n".join(summary["candidate_excerpts"] + summary["limitations"])
         self.assertIn("未达到正文整理标准", joined)
         self.assertNotIn("Please update your browser", joined)
 

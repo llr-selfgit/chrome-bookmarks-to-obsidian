@@ -30,6 +30,10 @@ def _coverage_for_summary_basis(summary_basis: str) -> str:
     return "partial"
 
 
+def _curation_status(summary: Dict[str, object]) -> str:
+    return str(summary.get("curation_status") or "needs_agent")
+
+
 class ObsidianWriter:
     def __init__(self, root: Path):
         self.root = root
@@ -61,21 +65,9 @@ class ObsidianWriter:
         media_type = fetch.media_type or "article"
         transcript_status = fetch.transcript_status or "not_applicable"
         summary_basis = str(summary.get("summary_basis") or "content")
+        curation_status = _curation_status(summary)
         coverage = _coverage_for_summary_basis(summary_basis)
-        content_status = ""
-        if summary_basis != "content":
-            content_status = (
-                "\n## 内容状态\n\n"
-                f"- summary_basis: {summary_basis}\n"
-                "- 未提取到可靠正文；当前条目不能当作正文级摘要使用。\n"
-                "- 后续如果需要准确理解内容，应补充 transcript、使用浏览器辅助流程或人工整理。\n"
-            )
-        elif media_type == "video" and transcript_status != "available":
-            content_status = (
-                "\n## 内容状态\n\n"
-                "- summary_basis: content\n"
-                "- 视频来源未标记 transcript 可用；如需引用视频观点，应补充 transcript 或人工复核。\n"
-            )
+        body = self._source_body(bookmark, summary, summary_basis, curation_status)
         content = f"""---
 type: web-source
 source_type: chrome_bookmark
@@ -91,15 +83,35 @@ retrieval_method: {_yaml_string(fetch.retrieval_method)}
 media_type: {media_type}
 transcript_status: {transcript_status}
 summary_basis: {summary_basis}
+curation_status: {curation_status}
 imported_at: {_yaml_string(timestamp)}
 last_checked_at: {_yaml_string(timestamp)}
 content_hash: {_yaml_string(content_hash)}
-status: active
+status: {"candidate" if curation_status == "needs_agent" else "active"}
 ---
 
 # {bookmark.title}
 
-## 一句话摘要
+{body}
+
+## 来源链接
+
+- {bookmark.url}
+"""
+        source_path.write_text(content, encoding="utf-8")
+        self._update_category_outline(category, source_path, summary)
+        self._update_global_index(category)
+        return source_path
+
+    def _source_body(
+        self,
+        bookmark: Bookmark,
+        summary: Dict[str, object],
+        summary_basis: str,
+        curation_status: str,
+    ) -> str:
+        if curation_status != "needs_agent":
+            return f"""## 一句话摘要
 
 {summary["one_line"]}
 
@@ -114,15 +126,30 @@ status: active
 ## 局限和需复核点
 
 {_md_list(summary["limitations"])}
-{content_status}
-## 来源链接
-
-- {bookmark.url}
 """
-        source_path.write_text(content, encoding="utf-8")
-        self._update_category_outline(category, source_path, summary)
-        self._update_global_index(category)
-        return source_path
+
+        excerpts = summary.get("candidate_excerpts") or []
+        return f"""## Agent 整理状态
+
+- curation_status: needs_agent
+- summary_basis: {summary_basis}
+- 当前脚本只完成抓取、正文抽取和去噪；以下内容是候选材料，不是最终摘要。
+- 不要把网页导航、按钮、统计栏、登录提示、版权栏等页面外壳整理成知识内容。
+
+## 候选内容
+
+{_md_list(excerpts)}
+
+## 待 Agent 整理
+
+- 阅读候选内容和原始链接，判断网页正文真正讲了什么。
+- 生成具体的“一句话摘要”“关键观点”“适合用于”“局限和需复核点”。
+- 如果只有标题、元数据或 transcript 缺失，明确保留限制，不要编造正文观点。
+
+## 局限和需复核点
+
+{_md_list(summary["limitations"])}
+"""
 
     def _update_global_index(self, category: str) -> None:
         index_path = self.root / "知识库索引.md"
